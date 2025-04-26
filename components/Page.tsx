@@ -2,46 +2,41 @@ import React, { use, useMemo } from "react";
 import MerilLanding from "./Pages/MerilLanding";
 import TableOfContents from "./Pages/TableOfContent";
 
+/**
+ * Accepts either a React node **or** a plain HTML string.
+ * Add as many entries as you like; undefined keys fall back to Blank Page.
+ */
+const pageContent: Record<number, React.ReactNode | { __html: string }> = {
+  // JSX components
+  1: <MerilLanding />,
+  2: <TableOfContents />,
+  3: <div>Page 3 (JSX)</div>,
+  4: { __html: "<h1>Page 4</h1><p>This came from HTML.</p>" },
+};
+
 // One page = one React node; forwardRef is required by the library
 const Page = React.forwardRef<
   HTMLDivElement,
   React.PropsWithChildren<{ number: number }>
->((props, ref) => {
-  const ComponentBody = useMemo(() => {
-    switch (props.number) {
-      case 1:
-        return <MerilLanding />;
-      case 2:
-        return <TableOfContents />;
-      case 3:
-        return <div>Page 3</div>;
-      case 4:
-        return <div>Page 4</div>;
-      case 5:
-        return <div>Page 5</div>;
-      case 6:
-        return <div>Page 6</div>;
-      case 7:
-        return <div>Page 7</div>;
-      case 8:
-        return <div>Page 8</div>;
-      case 9:
-        return <div>Page 9</div>;
-      case 10:
-        return <div>Page 10</div>;
-      case 11:
-        return <div>Page 11</div>;
-      default:
-        return <div>Blank Page</div>;
+>(({ number }, ref) => {
+  const body = React.useMemo(() => {
+    const entry = pageContent[number];
+
+    // HTML object ⇒ render via dangerouslySetInnerHTML
+    if (entry && typeof entry === "object" && "__html" in entry) {
+      return <div dangerouslySetInnerHTML={entry} />;
     }
-  }, []);
+
+    // ReactNode or undefined
+    return entry ?? <div>Blank Page</div>;
+  }, [number]);
 
   return (
     <div
       ref={ref}
       className="flex h-full w-full items-center justify-center bg-white text-2xl font-semibold"
     >
-      {ComponentBody}
+      {body}
     </div>
   );
 });
