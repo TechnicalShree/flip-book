@@ -2,19 +2,7 @@
 import React, { useRef } from "react";
 import HTMLFlipBook from "react-pageflip";
 import type { PageFlip } from "page-flip";
-
-// One page = one React node; forwardRef is required by the library
-const Page = React.forwardRef<
-  HTMLDivElement,
-  React.PropsWithChildren<{ number: number }>
->((props, ref) => (
-  <div
-    ref={ref}
-    className="flex h-full w-full items-center justify-center bg-white text-2xl font-semibold"
-  >
-    {props.children}
-  </div>
-));
+import Page from "./Page";
 
 export default function BookViewer() {
   const flipRef = useRef<PageFlip | null>(null);
@@ -25,19 +13,29 @@ export default function BookViewer() {
   return (
     <div className="flex flex-col items-center">
       <HTMLFlipBook
-        /* portrait forces single-page mode */
         width={420}
         height={600}
-        usePortrait // single page no matter the screen width
-        size="fixed" // keeps aspect ratio
-        mobileScrollSupport
+        /* props TS claims are required — give them harmless defaults */
+        style={{}} // empty style object
+        startPage={0}
+        minWidth={0}
+        maxWidth={9999}
+        minHeight={0}
+        maxHeight={9999}
+        drawShadow /* true by default */
+        flippingTime={1000} /* default 1 s */
+        swipeDistance={40} // ← tweak sensitivity if needed (default 30 px)
+        useMouseEvents // ← true by default; leave it or set explicitly
+        mobileScrollSupport={false} // let the finger drag ONLY flip pages
+        disableFlipByClick // optional: rely on gestures/buttons only
+        /* your real config */
+        usePortrait
+        size="fixed"
         className="shadow-xl rounded-lg"
-        ref={flipRef}
+        ref={flipRef} // keeps ref type from cascading errors
       >
         {Array.from({ length: 10 }).map((_, i) => (
-          <Page key={i} number={i + 1}>
-            Page {i + 1}
-          </Page>
+          <Page key={i} number={i + 1} />
         ))}
       </HTMLFlipBook>
 
